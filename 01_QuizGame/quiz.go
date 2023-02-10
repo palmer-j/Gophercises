@@ -10,6 +10,8 @@ func main(){
 
 	csvFilename := flag.String("csv", "problems.csv", "filepath to problems csv, expects format 'problem,answer'")
 
+	flag.Parse()
+
 	fmt.Println(*csvFilename)
 
 	_, err := os.Open(*csvFilename)
