@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"encoding/csv"
 	)
 
 func main(){
@@ -12,23 +13,55 @@ func main(){
 
 	flag.Parse()
 
-	fmt.Println(*csvFilename)
-
-	_, err := os.Open(*csvFilename)
+	file, err := os.Open(*csvFilename)
 
 	if err != nil {
-		exit(fmt.Sprintf("failed to read file %s", csvFilename))
+		exit(fmt.Sprintf("failed to read file %s", *csvFilename))
 	}
+
+	reader := csv.NewReader(file)
+
+	lines, err := reader.ReadAll()
+
+	if err != nil {
+		exit("failed to get problems")
+	}
+
+	parsed := parseLines(lines)
+
+	correctAns := 0
+
+	for i, prob := range parsed {
+		fmt.Printf("%d. %s = ", i, prob.problem)
+		var userAns string
+		fmt.Scan(&userAns)
+		if (userAns == prob.answer) {
+			fmt.Println("Correct!")
+			correctAns += 1
+		} else {
+			fmt.Println("Incorrect")
+		}
+	}
+
+	fmt.Printf("Final Score: %d / %d" ,correctAns, len(parsed))
+
+}
+
+func parseLines(lines[][]string) []problem {
+	parsed := make([]problem, len(lines))
+	for i, probText := range lines {
+		parsed[i] = problem{
+			problem : probText[0],
+			answer : probText[1],
+		}
+	}
+	return parsed
 }
 
 type problem struct{
 	problem string
 	answer string
 }
-
-// func getProblems(filename) [][] string{
-// 	res = make()
-// }
 
 func exit(msg string){
 	fmt.Println(msg)
